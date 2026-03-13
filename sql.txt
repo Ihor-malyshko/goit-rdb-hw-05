@@ -1,0 +1,64 @@
+USE mydb;
+
+-- Task 1
+SELECT 
+    *,
+    (SELECT 
+            customer_id
+        FROM
+            orders
+        WHERE
+            orders.id = order_details.order_id) AS customer_id
+FROM
+    order_details;
+
+-- Task 2
+SELECT 
+    *
+FROM
+    order_details
+WHERE
+    order_id IN (SELECT 
+            id
+        FROM
+            orders
+        WHERE
+            shipper_id = 3);
+
+-- Task 3
+SELECT order_id, AVG(quantity) as avg_quantity
+FROM (
+    SELECT *
+    FROM order_details
+    WHERE quantity > 10
+) AS temp_table
+GROUP BY order_id;
+
+
+-- Task 4
+WITH temp AS (
+    SELECT *
+    FROM order_details
+    WHERE quantity > 10
+)
+SELECT order_id, AVG(quantity) as avg_quantity
+FROM temp
+GROUP BY order_id;
+
+-- Task 5
+-- delete
+DROP FUNCTION IF EXISTS divide_float;
+-- init
+DELIMITER //
+CREATE FUNCTION divide_float(val1 FLOAT, val2 FLOAT)
+RETURNS FLOAT
+DETERMINISTIC
+BEGIN
+	RETURN val1 / val2;
+END //
+DELIMITER ;
+-- use
+SELECT *,
+    divide_float(quantity, 2.0) AS quantity_divided
+FROM
+	order_details;
